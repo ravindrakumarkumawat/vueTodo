@@ -250,9 +250,9 @@ export default {
     searchedLists () {
       return this.lists.slice(0).reverse().filter(list => list.list.match(this.newList))
     },
-    // searchedItems () {
-    //   return this.selectedList.items.slice(0).reverse().filter(item => item.item.match(this.newItem))
-    // },
+    searchedItems () {
+      return this.selectedList.items.slice(0).reverse().filter(item => item.item.match(this.newItem))
+    },
     sortedItems () {
       const highPriority = []
       const mediumPriority = []
@@ -268,12 +268,8 @@ export default {
       const mediumPriority1 = this.filterDate(mediumPriority)
       const lowPriority1 = this.filterDate(lowPriority)
       const nonePriority1 = this.filterDate(nonePriority)
-      this.selectedList.items = []
       const concatPrio = highPriority1.concat(mediumPriority1).concat(lowPriority1).concat(nonePriority1)
-      for (let item of concatPrio) {
-        this.selectedList.items.push(item)
-      }
-    return this.selectedList.items.slice(0).filter(item => item.item.match(this.newItem))
+      return concatPrio.slice(0).filter(item => item.item.match(this.newItem))
     },
     
   },
