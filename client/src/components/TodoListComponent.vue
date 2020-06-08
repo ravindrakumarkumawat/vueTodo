@@ -60,7 +60,7 @@
         <p
             class="empty-list"
             v-if="lists.length === 0">
-            Pheww, List is Empty. Let's Chill & Neflix 🍕🍔🍺
+            Pheww, List is Empty. Let's Chill & Netflix 🍕🍔🍺
         </p>
     </div>
 
@@ -250,26 +250,29 @@ export default {
     searchedLists () {
       return this.lists.slice(0).reverse().filter(list => list.list.match(this.newList))
     },
-    searchedItems () {
-      return this.selectedList.items.slice(0).reverse().filter(item => item.item.match(this.newItem))
-    },
+    // searchedItems () {
+    //   return this.selectedList.items.slice(0).reverse().filter(item => item.item.match(this.newItem))
+    // },
     sortedItems () {
-      const highPriority = []
-      const mediumPriority = []
-      const lowPriority = []
-      const nonePriority = []
-      this.selectedList.items.forEach(item => {
-        if (item.priority === "High") highPriority.push(item)
-        if (item.priority === "Medium") mediumPriority.push(item)
-        if (item.priority === "Low") lowPriority.push(item)
-        if (item.priority === "None") nonePriority.push(item)
-      })
-      const highPriority1 = this.filterDate(highPriority)
-      const mediumPriority1 = this.filterDate(mediumPriority)
-      const lowPriority1 = this.filterDate(lowPriority)
-      const nonePriority1 = this.filterDate(nonePriority)
-      const concatPrio = highPriority1.concat(mediumPriority1).concat(lowPriority1).concat(nonePriority1)
-      return concatPrio.slice(0).filter(item => item.item.match(this.newItem))
+      if (this.selectedList) {
+        const highPriority = []
+        const mediumPriority = []
+        const lowPriority = []
+        const nonePriority = []
+        this.selectedList.items.forEach(item => {
+          if (item.priority === "High") highPriority.push(item)
+          if (item.priority === "Medium") mediumPriority.push(item)
+          if (item.priority === "Low") lowPriority.push(item)
+          if (item.priority === "None") nonePriority.push(item)
+        })
+        const highPriority1 = this.filterDate(highPriority)
+        const mediumPriority1 = this.filterDate(mediumPriority)
+        const lowPriority1 = this.filterDate(lowPriority)
+        const nonePriority1 = this.filterDate(nonePriority)
+        const concatPrio = highPriority1.concat(mediumPriority1).concat(lowPriority1).concat(nonePriority1)
+        return concatPrio.filter(item => item.item.match(this.newItem))
+      }
+      return []
     },
     
   },
@@ -280,7 +283,8 @@ export default {
      * http://localhost:5000/lists
     */   
     saveList() {
-      fetch(API_URL, {
+      if (this.newList) {
+        fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({newList: this.newList}),
         headers: {
@@ -288,10 +292,13 @@ export default {
         }
       })
         .then(response => response.json())
-        .then(result => {
-          this.lists.push(result)
-          this.newList = ''
+        .then(() => {
+            this.newList = ''
+            fetch(API_URL)
+            .then(response => response.json())
+            .then(res => this.lists = res)
         });
+      }
     },
     
     /*
@@ -344,18 +351,20 @@ export default {
     * http://localhost:5000/lists/${list_id}/tasks
     */
     saveListItem() {
-      fetch(API_URL+`/${this.selectedList.list_id}/tasks`, {
-        method: "POST",
-        body: JSON.stringify({ newItem: this.newItem, noteText: this.noteText, priority: this.priority, date: this.date, completed: this.completed }),
-        headers: {
-          "content-type": "application/json"
-        }
-      })
-        .then(response => response.json())
-        .then(result => {
-          this.selectedList.items.push(result)
-          this.newItem = ''
-        });
+      if (this.newItem) {
+        fetch(API_URL+`/${this.selectedList.list_id}/tasks`, {
+          method: "POST",
+          body: JSON.stringify({ newItem: this.newItem, noteText: this.noteText, priority: this.priority, date: this.date, completed: this.completed }),
+          headers: {
+            "content-type": "application/json"
+          }
+        })
+          .then(response => response.json())
+          .then(result => {
+            this.selectedList.items.push(result)
+            this.newItem = ''
+          });
+      }
     },
 
     /*
